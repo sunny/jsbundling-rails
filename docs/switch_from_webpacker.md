@@ -40,15 +40,15 @@ If you would like to minimize the diff between Webpacker and jsbundling-rails:
 2. Change the config path in `package.json`
 
 ```diff
-- "build": "webpack --config ./webpack.config.js"
-+ "build": "webpack --config ./config/webpack/webpack.config.js"
+- "build": "webpack --config webpack.config.js"
++ "build": "webpack --config config/webpack/webpack.config.js"
 ```
 
 3. Change the [output path](https://github.com/rails/jsbundling-rails/blob/main/lib/install/webpack/webpack.config.js#L13) in `webpack.config.js`
 
 ```diff
 - path: path.resolve(__dirname, "app/assets/builds"),
-+ path: path.resolve(__dirname, '..', '..', 'app/assets/builds')
++ path: path.resolve(__dirname, "../../app/assets/builds")
 ```
 
 ## 2. Remove Webpacker
@@ -63,6 +63,8 @@ If you would like to minimize the diff between Webpacker and jsbundling-rails:
 - `./config/webpack/environment.js`
 - `./config/webpack/production.js`
 - `./config/webpack/test.js`
+- `./public/packs`
+- `./public/packs-test`
 
 2. Remove Webpacker gem
 
@@ -75,7 +77,7 @@ If you would like to minimize the diff between Webpacker and jsbundling-rails:
 
 ## 3. Install dependencies
 
-Webpacker includes [many dependencies](https://github.com/rails/webpacker/blob/5-x-stable/package.json) by default while jsbundling-rails leaves it to you. If you're only handling JavaScript with no modifications you don't need to install additional packages. Treat the rest of this section ala-carte.
+Webpacker includes [many dependencies](https://github.com/rails/webpacker/blob/5-x-stable/package.json) by default while jsbundling-rails leaves it to you. If you're only handling JavaScript with no modifications you don't need to install additional packages. Treat the rest of this section _à la carte_.
 
 ```sh
 # From the CLI, remove Webpacker packages
@@ -107,15 +109,15 @@ yarn add @babel/core @babel/preset-env babel-loader
 ```diff
 // in webpack.config.js, add
 module.exports = {
-  module: {
-    rules: [
++ module: {
++   rules: [
 +       {
 +         test: /\.(js)$/,
 +         exclude: /node_modules/,
-+         use: ['babel-loader'],
++         use: ["babel-loader"],
 +       },
-    ],
-  },
++   ],
++ },
 };
 ```
 
@@ -148,15 +150,15 @@ yarn add @babel/core @babel/preset-env @babel/preset-react @babel/preset-typescr
 ```diff
 // in webpack.config.js, add
 module.exports = {
-  module: {
-    rules: [
++ module: {
++   rules: [
 +       {
-+         test: /\.(js|jsx|ts|tsx|)$/,
++         test: /\.(js|jsx|ts|tsx)$/,
 +         exclude: /node_modules/,
-+         use: ['babel-loader'],
++         use: ["babel-loader"],
 +       },
-    ],
-  },
++   ],
++ },
 };
 ```
 
@@ -250,31 +252,29 @@ If you have multiple entries, it's recommended to confirm one at a time, and fin
 
 ## 5. Replace Webpacker pack tags
 
-Find + replace uses of `Webpacker`'s asset tags.
+Find & replace uses of `Webpacker`'s asset tags.
 
 ```
-# Webpacker tag       # Sprockets tag
-javascript_pack_tag = javascript_include_tag
-stylesheet_pack_tag = stylesheet_link_tag
+# Webpacker tag        # Sprockets tag
+javascript_pack_tag => javascript_include_tag
+stylesheet_pack_tag => stylesheet_link_tag
 ```
 
 Once the tags are replaced your app should be working same as before!
 
 ## Optional: Add support for development environment
 
-`jsbundling-rails` ships with only `production` mode. You can dramatically speed up build times during development by switching to `mode: 'development'`.
+`jsbundling-rails` ships with only `production` mode. You can dramatically speed up build times during development by switching to `mode: "development"`.
 
 ```diff
 // Make the following changes in webpack.config.js
-+ const mode = process.env.NODE_ENV === 'development' ? 'development' : 'production';
-
 module.exports = {
 -  mode: "production",
-+  mode,
++  mode: process.env.NODE_ENV === "development" ? "development" : "production",
 -  devtool: "source-map",
   …
 +  optimization: {
-+    moduleIds: 'hashed',
++    moduleIds: "deterministic",
 +  }
 }
 ```
